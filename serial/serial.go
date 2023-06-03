@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"fmt"
 
 	"github.com/howeyc/crc16"
 )
@@ -32,34 +31,17 @@ func NewCommonMessage(data []byte) *CommonMessage {
 
 func CommonMessageToBytes(cm *CommonMessage) ([]byte, error) {
 	var b bytes.Buffer
-	n, err := b.Write(cm.Header[:])
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("DEBUG INFO: CommonMessageBytes Header n:", n)
+	b.Write(cm.Header[:])
 
 	lenBytes := make([]byte, 2)
 	binary.BigEndian.PutUint16(lenBytes, uint16(cm.Len))
-	n, err = b.Write(lenBytes)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("DEBUG INFO: CommonMessageBytes Len n:", n)
-	fmt.Println(cm.Len)
-	n, err = b.Write(cm.Data)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("DEBUG INFO: CommonMessageBytes Command n:", n)
+	b.Write(lenBytes)
 
+	b.Write(cm.Data)
 	CRCBytes := make([]byte, 2)
 	binary.BigEndian.PutUint16(CRCBytes, cm.CRC)
-	n, err = b.Write(CRCBytes)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("DEBUG INFO: CommonMessageBytes CRC n:", n)
-	fmt.Println(cm.CRC)
+	b.Write(CRCBytes)
+
 	return b.Bytes(), nil
 }
 
