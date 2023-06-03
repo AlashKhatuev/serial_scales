@@ -25,6 +25,8 @@ var (
 	ErrSetZeroImpossible = errors.New("Set zero is impossible")
 	// Ошибка установки тары
 	ErrSetTare = errors.New("Can't set tare")
+	// Неизвестная команда
+	ErrNack = errors.New("Given command not supported")
 )
 
 type SerialConnection struct {
@@ -95,6 +97,9 @@ func (s *SerialConnection) SetTare(tare int32) error {
 	}
 	if response.Data[0] == 0x15 {
 		return ErrSetTare
+	}
+	if response.Data[0] == 0xF0 {
+		return ErrNack
 	}
 	return nil
 }
