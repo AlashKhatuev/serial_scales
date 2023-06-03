@@ -29,7 +29,7 @@ func NewCommonMessage(data []byte) *CommonMessage {
 	}
 }
 
-func CommonMessageToBytes(cm *CommonMessage) ([]byte, error) {
+func CommonMessageToBytes(cm *CommonMessage) []byte {
 	var b bytes.Buffer
 	b.Write(cm.Header[:])
 
@@ -42,7 +42,7 @@ func CommonMessageToBytes(cm *CommonMessage) ([]byte, error) {
 	binary.BigEndian.PutUint16(CRCBytes, cm.CRC)
 	b.Write(CRCBytes)
 
-	return b.Bytes(), nil
+	return b.Bytes()
 }
 
 func BytesToCommonMessage(message []byte) (*CommonMessage, error) {
