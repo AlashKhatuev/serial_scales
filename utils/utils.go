@@ -1,4 +1,4 @@
-package serial
+package utils
 
 import (
 	"bytes"
