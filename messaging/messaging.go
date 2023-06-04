@@ -73,11 +73,11 @@ func (s *SerialConnection) SetZero() error {
 	return nil
 }
 
-func (s *SerialConnection) SetTare(tare int32) error {
+func (s *SerialConnection) SetTare(tare int64) error {
 	var data bytes.Buffer
 	data.Write([]byte{0xA3})
 	tareBytes := make([]byte, 4)
-	binary.BigEndian.PutUint32(tareBytes, uint32(tare))
+	binary.PutVarint(tareBytes, tare)
 	data.Write(tareBytes)
 
 	message := utils.NewCommonMessage(data.Bytes())
@@ -121,11 +121,13 @@ func (s *SerialConnection) GetMassa() (int32, int, int32, error) {
 		return 0, 0, 0, err
 	}
 
-	weight := binary.BigEndian.Uint32(response.Data[2:6])
+	weightBuf := bytes.NewBuffer(response.Data[2:6])
+	weight, err := binary.ReadVarint(weightBuf)
 	division := int(response.Data[6])
-	var tare uint32 = 0
+	var tare int64 = 0
 	if response.Len == 0x09 {
-		tare = binary.BigEndian.Uint32(response.Data[9:])
+		tareBuf := bytes.NewBuffer(response.Data[9:])
+		tare, err = binary.ReadVarint(tareBuf)
 	}
 
 	if response.Data[0] == 0x28 {

@@ -57,7 +57,7 @@ func (s *SerialScaleServer) SetTare(ctx context.Context, in *pb.Empty) (*pb.Resp
 
 func (s *SerialScaleServer) SetTareValue(ctx context.Context, in *pb.RequestTareValue) (*pb.ResponseSetScale, error) {
 	tare, err := strconv.Atoi(in.Message)
-	tareErr := globals.SerialConn.SetTare(int32(tare))
+	tareErr := globals.SerialConn.SetTare(int64(tare))
 	return &pb.ResponseSetScale{
 		Error: err.Error(),
 	}, tareErr
