@@ -103,3 +103,47 @@ func (s *SerialConnection) SetTare(tare int32) error {
 	}
 	return nil
 }
+
+func (s *SerialConnection) GetMassa() (int32, int, int32, error) {
+	message := utils.NewCommonMessage([]byte{0x72})
+	messageBytes := utils.CommonMessageToBytes(message)
+	_, err := s.Stream.Write(messageBytes)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	responseBytes := make([]byte, 32)
+	_, err = s.Stream.Read(responseBytes)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	response, err := utils.BytesToCommonMessage(responseBytes)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	weight := binary.BigEndian.Uint32(response.Data[2:6])
+	division := int(response.Data[6])
+	var tare uint32 = 0
+	if response.Len == 0x09 {
+		tare = binary.BigEndian.Uint32(response.Data[9:])
+	}
+
+	if response.Data[0] == 0x28 {
+		if response.Data[1] == 0x08 {
+			return 0, 0, 0, ErrTooBigLoad
+		}
+		if response.Data[1] == 0x09 {
+			return 0, 0, 0, ErrScalesNotInWheigtingMode
+		}
+		if response.Data[1] == 0x17 {
+			return 0, 0, 0, ErrNoWeightingModuleConnection
+		}
+		if response.Data[1] == 0x18 {
+			return 0, 0, 0, ErrLoadWhenTurningOn
+		}
+		if response.Data[1] == 0x19 {
+			return 0, 0, 0, ErrWeightingModuleDefective
+		}
+	}
+	return int32(weight), division, int32(tare), nil
+}
