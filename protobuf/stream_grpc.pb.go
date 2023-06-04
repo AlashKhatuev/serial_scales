@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.12.4
-// source: grpc/grpc.proto
+// source: protobuf/stream.proto
 
 package __
 
@@ -314,5 +314,5 @@ var ApiCallerScale_ServiceDesc = grpc.ServiceDesc{
 			ClientStreams: true,
 		},
 	},
-	Metadata: "grpc/grpc.proto",
+	Metadata: "protobuf/stream.proto",
 }
